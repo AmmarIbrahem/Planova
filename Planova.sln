@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.4.11513.90 insiders
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Planova", "Planova\Planova.csproj", "{F79C0964-63AC-41C6-9D6A-9AE46C130996}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Planova.IntegrationTests", "tests\Planova.IntegrationTests\Planova.IntegrationTests.csproj", "{AAC82651-7A12-712F-FF2C-4182B7393580}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F79C0964-63AC-41C6-9D6A-9AE46C130996}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F79C0964-63AC-41C6-9D6A-9AE46C130996}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F79C0964-63AC-41C6-9D6A-9AE46C130996}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F79C0964-63AC-41C6-9D6A-9AE46C130996}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAC82651-7A12-712F-FF2C-4182B7393580}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAC82651-7A12-712F-FF2C-4182B7393580}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAC82651-7A12-712F-FF2C-4182B7393580}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAC82651-7A12-712F-FF2C-4182B7393580}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C56F6FAA-FB12-41DB-8718-F927696D869A}
+	EndGlobalSection
+EndGlobal

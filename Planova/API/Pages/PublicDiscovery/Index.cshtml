@@ -1,0 +1,43 @@
+@page
+@model Planova.API.Pages.PublicDiscovery.IndexModel
+
+<h2>Available Events</h2>
+
+@if (!Model.Events.Any())
+{
+    <p>No upcoming events found.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Location</th>
+                <th>Capacity</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var e in Model.Events)
+            {
+                <tr>
+                    <td>@e.Name</td>
+                    <td>@e.StartTime.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@e.EndTime.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@e.Location</td>
+                    <td>@e.Capacity</td>
+                    <td>
+                        <a asp-page="Details"
+                           asp-route-id="@e.Id"
+                           class="btn btn-sm btn-primary">
+                            View
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

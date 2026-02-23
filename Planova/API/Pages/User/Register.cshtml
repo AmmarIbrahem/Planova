@@ -1,0 +1,42 @@
+@page
+@model Planova.API.Pages.User.RegisterModel
+@{
+    ViewData["Title"] = "User Register";
+}
+
+<h1>User Register</h1>
+
+@if (Model.Error != null)
+{
+    <div class="alert alert-danger">@Model.Error</div>
+}
+
+<form method="post">
+    <div class="mb-2">
+        <label class="form-label">Name</label>
+        <input type="text" class="form-control" asp-for="Name" required />
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" asp-for="Email" required />
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Phone Number</label>
+        <input type="text" class="form-control" asp-for="PhoneNumber" required />
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" asp-for="Password" required />
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Role</label>
+        <select class="form-select" asp-for="Role" required>
+            <option value="">-- Select Role --</option>
+            <option value="Admin">Admin</option>
+            <option value="EventCreator">Event Creator</option>
+            <option value="Participant">Participant</option>
+        </select>
+        <span asp-validation-for="Role" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Register</button>
+</form>

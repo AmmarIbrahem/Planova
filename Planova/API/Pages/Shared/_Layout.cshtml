@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Planova</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/site.css" />
+</head>
+<body>
+
+    @{
+        var isLoggedIn = User?.Identity?.IsAuthenticated ?? false;
+        var displayName = "User"; // default
+		var isEventManager = User?.Claims.Any(c => c.Type == System.Security.Claims.ClaimTypes.Role && (c.Value == "Admin" || c.Value == "EventCreator")) == true;
+        if (User?.Identity?.IsAuthenticated == true)
+        {
+            // Get all roles from claims
+            var roles = User.Claims
+            .Where(c => c.Type == System.Security.Claims.ClaimTypes.Role)
+            .Select(c => c.Value)
+            .ToList();
+
+            // Determine display name based on role priority
+            if (roles.Contains("Admin"))
+            {
+                displayName = "Admin";
+            }
+            else if (roles.Contains("EventCreator"))
+            {
+                displayName = "Event Creator";
+            }
+            else
+            {
+                displayName = User.Claims
+                .Where(c => c.Type == System.Security.Claims.ClaimTypes.Name)
+                .Select(c => c.Value)
+                .FirstOrDefault<string>("User");
+            }
+        }
+    }
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+
+            <!-- Brand -->
+            <a class="navbar-brand fw-bold" href="/Events">Planova</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto">
+
+                    <!-- Public Discovery -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/PublicDiscovery">Discover Events</a>
+                    </li>
+
+                    <!-- Creator Management -->
+                    @if (isLoggedIn && isEventManager)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="/EventManagment/Events">Manage Events</a>
+                        </li>
+                    }
+                </ul>
+
+                <ul class="navbar-nav ms-auto">
+
+                    @if (!isLoggedIn)
+                    {
+                        <!-- Authentication -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/User/Login">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/User/Register">Register</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <!-- Logged in user -->
+                        <li class="nav-item d-flex align-items-center">
+                            <span class="nav-link disabled text-white mb-0">
+                                @displayName
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Logout">Logout</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-4">
+
+        <!-- GLOBAL ALERTS -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @RenderBody()
+    </main>
+
+    <footer class="border-top text-center text-muted mt-5 py-3">
+        <div class="container">
+            © @DateTime.Now.Year - Planova | Event Management & Discovery Platform
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

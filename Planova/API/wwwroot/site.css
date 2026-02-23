@@ -1,0 +1,17 @@
+/* Planova minimal layout styling */
+.container {
+  max-width: 960px;
+}
+
+main {
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.alert-success,
+.alert-danger {
+  margin-top: 1rem;
+}

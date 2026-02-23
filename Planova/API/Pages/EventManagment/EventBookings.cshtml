@@ -1,0 +1,47 @@
+@page
+@model Planova.API.Pages.EventManagment.EventBookingsModel
+@{
+    ViewData["Title"] = "Event Registrations";
+}
+
+<h1>Event Registrations</h1>
+
+@if (Model.EventId != null)
+{
+    <p><a href="/PublicDiscovery/Details?id=@Model.EventId">View Event</a></p>
+}
+
+@if (Model.Error != null)
+{
+    <div class="alert alert-danger">@Model.Error</div>
+}
+else if (Model.Registrations.Count == 0)
+{
+    <p>No registrations yet.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model.Registrations)
+            {
+                <tr>
+                    <td>@r.Name</td>
+                    <td>@r.PhoneNumber</td>
+                    <td>@r.Email</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<p>
+    <a class="btn btn-secondary" href="/PublicDiscovery">Back to Events</a>
+</p>

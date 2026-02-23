@@ -1,0 +1,77 @@
+@page "{id:guid}"
+@model Planova.API.Pages.PublicDiscovery.DetailsModel
+@{
+    Layout = "_Layout";
+}
+
+@if (Model.Event == null)
+{
+    <p>Event not found.</p>
+    return;
+}
+
+<h2>@Model.Event.Name</h2>
+
+<p><strong>Start Time:</strong> @Model.Event.StartTime.ToString("yyyy-MM-dd HH:mm")</p>
+<p><strong>End Time:</strong> @Model.Event.EndTime.ToString("yyyy-MM-dd HH:mm")</p>
+<p><strong>Location:</strong> @Model.Event.Location</p>
+<p><strong>Description:</strong> @Model.Event.Description</p>
+<p><strong>Capacity:</strong> @Model.Event.Capacity</p>
+<p><strong>Remaining:</strong> @Model.Event.AvailableSlots</p>
+
+<hr />
+
+<h4>Book This Event</h4>
+
+@if (!ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
+@if (Model.Event.AvailableSlots <= 0)
+{
+    <div class="alert alert-warning">
+        This event is fully booked.
+    </div>
+}
+else
+{
+    @if (!string.IsNullOrEmpty(Model.BookingMessage))
+    {
+        <div class="alert @(Model.BookingSuccess ? "alert-success" : "alert-danger")">
+            @Model.BookingMessage
+        </div>
+    }
+    <form method="post" asp-antiforgery="true">
+        <div class="form-group mb-2">
+            <label asp-for="BookingName">Name</label>
+            <input asp-for="BookingName" class="form-control" />
+            <span asp-validation-for="BookingName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-2">
+            <label asp-for="BookingEmail">Email</label>
+            <input asp-for="BookingEmail" class="form-control" />
+            <span asp-validation-for="BookingEmail" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-2">
+            <label asp-for="BookingPhoneNumber">Phone Number</label>
+            <input asp-for="BookingPhoneNumber" class="form-control" />
+            <span asp-validation-for="BookingPhoneNumber" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-success mt-2">Book Event</button>
+    </form>
+}
+
+@* @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+} *@

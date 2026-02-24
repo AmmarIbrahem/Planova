@@ -21,7 +21,7 @@ public class EventRepository : IEventRepository
 		var events = await _context.Events
 			.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
 
-		_logger.LogInformation("Retrieved event with ID {EventId}: {EventName}", id, events?.Name ?? "Not Found");
+		_logger.LogDebug("Retrieved event with ID {EventId}: {EventName}", id, events?.Name ?? "Not Found");
 
 		return events;
 	}
@@ -47,7 +47,7 @@ public class EventRepository : IEventRepository
 			.Where(e => e.CurrentParticipants < e.Capacity)
 			.ToListAsync(cancellationToken);
 
-		_logger.LogInformation("Retrieved {Count} available events", avaialbleEvents.Count);
+		_logger.LogDebug("Retrieved {Count} available events", avaialbleEvents.Count);
 
 		return avaialbleEvents;
 	}
@@ -92,7 +92,7 @@ public class EventRepository : IEventRepository
 			.OrderByDescending(e => e.StartTime)
 			.ToListAsync(cancellationToken);
 
-		_logger.LogInformation("Retrieved {Count} owned events for creator ID: {CreatorId}", ownedEvents.Count, creatorId.HasValue ? creatorId.Value.ToString() : "All (Admin)");
+		_logger.LogDebug("Retrieved {Count} owned events for creator ID: {CreatorId}", ownedEvents.Count, creatorId.HasValue ? creatorId.Value.ToString() : "All (Admin)");
 
 		return ownedEvents;
 	}
@@ -126,14 +126,14 @@ public class EventRepository : IEventRepository
 			})
 			.FirstOrDefaultAsync(cancellationToken);
 
-		_logger.LogInformation("Retrieved public details for event ID: {EventId}: {EventName}", eventId, events?.Name ?? "Not Found");
+		_logger.LogDebug("Retrieved public details for event ID: {EventId}: {EventName}", eventId, events?.Name ?? "Not Found");
 		return events;
 	}
 
 	public async Task<Guid> AddAsync(Event entity, CancellationToken cancellationToken)
 	{
 		await _context.Events.AddAsync(entity, cancellationToken);
-		_logger.LogInformation("Added new event: {EventName} with ID: {EventId}", entity.Name, entity.Id);
+		_logger.LogDebug("Added new event: {EventName} with ID: {EventId}", entity.Name, entity.Id);
 
 		return entity.Id;
 	}
@@ -141,13 +141,13 @@ public class EventRepository : IEventRepository
 	public void Update(Event entity)
 	{
 		_context.Events.Update(entity);
-		_logger.LogInformation("Updated event with ID: {EventId}", entity.Id);
+		_logger.LogDebug("Updated event with ID: {EventId}", entity.Id);
 	}
 
 	public void Remove(Event entity)
 	{
 		_context.Events.Remove(entity);
-		_logger.LogInformation("Removed event with ID: {EventId}", entity.Id);
+		_logger.LogDebug("Removed event with ID: {EventId}", entity.Id);
 	}
 
 }

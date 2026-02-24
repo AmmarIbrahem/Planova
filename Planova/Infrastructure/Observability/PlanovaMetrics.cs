@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.Metrics;
+﻿using System.Diagnostics;
+using System.Diagnostics.Metrics;
 
 namespace Planova.Infrastructure.Observability
 {
@@ -37,7 +38,11 @@ namespace Planova.Infrastructure.Observability
 
 		public void RecordBookingAttempt() => _bookingAttempts.Add(1);
 		public void RecordBookingSuccess() => _bookingSuccess.Add(1);
-		public void RecordBookingFailure(string reason) => _bookingFailures.Add(1, new KeyValuePair<string, object?>("reason", reason));
 		public void RecordBookingDuration(double ms) => _bookingDuration.Record(ms);
+		public void RecordBookingFailure(string reason)
+		{
+			var tags = new TagList { { "reason", reason } };
+			_bookingFailures.Add(1, tags);
+		}
 	}
 }

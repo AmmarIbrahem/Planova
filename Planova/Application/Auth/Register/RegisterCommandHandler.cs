@@ -11,7 +11,7 @@ namespace Planova.Application.Auth.Register;
 public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result>
 {
 	private readonly IUserRepository _userRepository;
-	private readonly IUnitOfWork unitOfWork;
+	private readonly IUnitOfWork _unitOfWork;
 	private readonly IPasswordHasher _passwordHasher;
 	private readonly ILogger<RegisterCommandHandler> _logger;
 
@@ -22,7 +22,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result>
 		ILogger<RegisterCommandHandler> logger)
 	{
 		_userRepository = userRepository;
-		this.unitOfWork = unitOfWork;
+		_unitOfWork = unitOfWork;
 		_passwordHasher = passwordHasher;
 		_logger = logger;
 	}
@@ -65,7 +65,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result>
 			);
 
 			await _userRepository.AddAsync(user, cancellationToken);
-			await unitOfWork.SaveChangesAsync(cancellationToken);
+			await _unitOfWork.SaveChangesAsync(cancellationToken);
 			_logger.LogInformation("User with email: {Email} registered successfully", request.Email);
 			return Result.Success("User registered successfully.");
 		}

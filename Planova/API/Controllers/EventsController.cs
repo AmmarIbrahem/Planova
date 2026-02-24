@@ -86,7 +86,7 @@ namespace Planova.API.Controllers
 		/// <response code="400">If the request fails due to business validation.</response>
 		[HttpGet("ownedEvents")]
 		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-		[OutputCache(PolicyName = "ReadCache")]
+		[OutputCache(PolicyName = "AuthReadCache")]
 		[ProducesResponseType(typeof(List<EventDetailsDto>), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -117,7 +117,7 @@ namespace Planova.API.Controllers
 		/// <response code="400">If the request fails due to business validation.</response>
 		[HttpGet("{eventId:guid}/registrations")]
 		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-		[OutputCache(PolicyName = "ReadCache")]
+		[OutputCache(PolicyName = "AuthReadCache")]
 		[ProducesResponseType(typeof(List<BookingsListDto>), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]

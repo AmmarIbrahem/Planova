@@ -19,7 +19,7 @@ public class UserRepository : IUserRepository
 	{
 		var user = await _context.Users
 			.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
-		_logger.LogInformation("User retrieval result for ID {UserId}: {Found}", id, user != null);
+		_logger.LogDebug("User retrieval result for ID {UserId}: {Found}", id, user != null);
 		return user;
 	}
 
@@ -27,14 +27,14 @@ public class UserRepository : IUserRepository
 	{
 		var user = await _context.Users
 			.FirstOrDefaultAsync(x => x.Email == email.ToLower(), cancellationToken);
-		_logger.LogInformation("User retrieval result for email {Email}: {Found}", email, user != null);
+		_logger.LogDebug("User retrieval result for email {Email}: {Found}", email, user != null);
 		return user;
 	}
 
 	public async Task<Guid> AddAsync(User entity, CancellationToken cancellationToken)
 	{
 		await _context.Users.AddAsync(entity, cancellationToken);
-		_logger.LogInformation("New user added with email: {Email} and assigned ID: {UserId}", entity.Email, entity.Id);
+		_logger.LogDebug("New user added with email: {Email} and assigned ID: {UserId}", entity.Email, entity.Id);
 		return entity.Id;
 	}
 }

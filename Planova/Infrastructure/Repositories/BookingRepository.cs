@@ -28,14 +28,27 @@ public class BookingRepository : IBookingRepository
 			.AsNoTracking()
 			.ToListAsync(cancellationToken);
 
-		_logger.LogInformation("Successfully retrieved {Count} bookings for event ID: {EventId}", bookings.Count, eventId);
+		_logger.LogDebug("Successfully retrieved bookings for event ID: {EventId}", eventId);
 		return bookings;
 	}
+
+	public async Task<int> GetCountByEventIdAsync (Guid eventId, CancellationToken cancellationToken)
+	{
+		var bookingsCount =
+			await _context.Bookings
+			.Where(p => p.EventId == eventId)
+			.AsNoTracking()
+			.CountAsync(cancellationToken);
+
+		_logger.LogDebug("Successfully retrieved {Count} bookings for event ID: {EventId}", bookingsCount, eventId);
+		return bookingsCount;
+	}
+
 
 	public async Task<Guid> AddAsync(Booking entity, CancellationToken cancellationToken)
 	{
 		await _context.Bookings.AddAsync(entity, cancellationToken);
-		_logger.LogInformation("Successfully added booking for event ID: {EventId} with email: {Email}", entity.EventId, entity.Email);
+		_logger.LogDebug("Successfully added booking for event ID: {EventId} with email: {Email}", entity.EventId, entity.Email);
 
 		return entity.Id;
 	}
@@ -45,7 +58,7 @@ public class BookingRepository : IBookingRepository
 		var existsByEmail =  await _context.Bookings
 		.Where(bp => bp.EventId == eventId)
 		.AnyAsync(bp => bp.Email.ToLower() == email.ToLower(), cancellationToken);
-		_logger.LogInformation("Booking existence check for event ID: {EventId} with email: {Email} returned: {Exists}", eventId, email, existsByEmail);
+		_logger.LogDebug("Booking existence check for event ID: {EventId} with email: {Email} returned: {Exists}", eventId, email, existsByEmail);
 		return existsByEmail;
 	}
 }

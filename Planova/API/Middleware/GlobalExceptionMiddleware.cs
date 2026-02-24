@@ -41,18 +41,6 @@ namespace Planova.API.Middleware
 				context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 				await context.Response.WriteAsJsonAsync(new { error = ex.Message });
 			}
-			catch (EventCapacityReachedException ex)
-			{
-				_logger.LogError(ex, "EventCapacityReachedException");
-				context.Response.StatusCode = StatusCodes.Status409Conflict;
-				await context.Response.WriteAsJsonAsync(new { error = ex.Message });
-			}
-			catch (DuplicateEventRegistrationException ex)
-			{
-				_logger.LogError(ex, "DuplicateEventRegistrationException");
-				context.Response.StatusCode = StatusCodes.Status409Conflict;
-				await context.Response.WriteAsJsonAsync(new { error = ex.Message });
-			}
 			catch (DomainException ex)
 			{
 				_logger.LogError(ex, "DomainException");

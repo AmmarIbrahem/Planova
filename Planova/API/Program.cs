@@ -6,9 +6,17 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Planova.API.Middleware;
 using Planova.API.Pages;
+using Planova.Application.Auth.Login;
 using Planova.Application.Auth.Register;
+using Planova.Application.BookingManagment.BookEvent;
 using Planova.Application.Common.Interfaces;
 using Planova.Application.EventManagement.CreateEvent;
+using Planova.Application.EventManagement.DeleteEvent;
+using Planova.Application.EventManagement.GetEventBookings;
+using Planova.Application.EventManagement.GetOwnedEvents;
+using Planova.Application.EventManagement.UpdateEvent;
+using Planova.Application.PublicDiscovery.GetAllEvents;
+using Planova.Application.PublicDiscovery.GetEventById;
 using Planova.Infrastructure.Observability;
 using Planova.Infrastructure.Persistence;
 using Planova.Infrastructure.Persistence.DevSeed;
@@ -51,10 +59,20 @@ builder.Services.AddScoped<ApiClient>();
 #region MediatR
 
 builder.Services.AddMediatR(cfg =>
-	cfg.RegisterServicesFromAssembly(typeof(CreateEventCommand).Assembly));
+{
+	cfg.RegisterServicesFromAssembly(typeof(LoginCommand).Assembly);
+	cfg.RegisterServicesFromAssembly(typeof(RegisterCommand).Assembly);
+	cfg.RegisterServicesFromAssembly(typeof(BookEventCommand).Assembly);
+	cfg.RegisterServicesFromAssembly(typeof(CreateEventCommand).Assembly);
+	cfg.RegisterServicesFromAssembly(typeof(GetEventBookingsQuery).Assembly);
+	cfg.RegisterServicesFromAssembly(typeof(GetOwnedEventsQuery).Assembly);
+	cfg.RegisterServicesFromAssembly(typeof(UpdateEventCommand).Assembly);
+	cfg.RegisterServicesFromAssembly(typeof(DeleteEventCommand).Assembly);
+	cfg.RegisterServicesFromAssembly(typeof(GetAllEventsQuery).Assembly);
+	cfg.RegisterServicesFromAssembly(typeof(GetEventByIdQuery).Assembly);
 
-builder.Services.AddScoped<RegisterCommandHandler>();
-builder.Services.AddScoped<CreateEventCommandHandler>();
+
+});
 
 #endregion
 
@@ -63,6 +81,7 @@ builder.Services.AddScoped<CreateEventCommandHandler>();
 builder.Services.AddAuthentication(options =>
 {
 	options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+	options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 })
 .AddCookie(options =>
 {
@@ -70,8 +89,10 @@ builder.Services.AddAuthentication(options =>
 	options.LogoutPath = "/Logout";
 	options.AccessDeniedPath = "/User/AccessDenied";
 	options.Cookie.Name = "Planova.Auth";
-	options.Cookie.HttpOnly = true;
+	options.Cookie.HttpOnly = true; 
+	options.Cookie.SameSite = SameSiteMode.Strict;
 	options.SlidingExpiration = true;
+	options.ExpireTimeSpan = TimeSpan.FromHours(8);
 })
 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
 {
@@ -88,7 +109,8 @@ builder.Services.AddAuthentication(options =>
 		ValidAudience = builder.Configuration["Jwt:Audience"],
 		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
 		RoleClaimType = ClaimTypes.Role,
-		NameClaimType = ClaimTypes.NameIdentifier
+		NameClaimType = ClaimTypes.NameIdentifier,
+		ClockSkew = TimeSpan.FromSeconds(30),
 	};
 });
 
@@ -98,11 +120,9 @@ builder.Services.AddAuthorization();
 
 #region Rate Limiting
 
-const string FixedPolicy = "fixed";
-
 builder.Services.AddRateLimiter(options =>
 {
-	options.AddPolicy(FixedPolicy, context =>
+	options.AddPolicy("fixed", context =>
 		RateLimitPartition.GetFixedWindowLimiter(
 			partitionKey: context.User?.Identity?.Name
 			  ?? context.Connection.RemoteIpAddress?.ToString()
@@ -113,6 +133,17 @@ builder.Services.AddRateLimiter(options =>
 				Window = TimeSpan.FromSeconds(10),
 				QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
 				QueueLimit = 2
+			}));
+
+	options.AddPolicy("auth", context =>
+		RateLimitPartition.GetFixedWindowLimiter(
+			partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+			factory: _ => new FixedWindowRateLimiterOptions
+			{
+				PermitLimit = 5,
+				Window = TimeSpan.FromSeconds(60),
+				QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+				QueueLimit = 0,
 			}));
 
 	options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -126,6 +157,11 @@ builder.Services.AddOutputCache(options =>
 	options.AddPolicy("ReadCache", policy =>
 		policy.Expire(TimeSpan.FromSeconds(5))
 			  .SetVaryByQuery("*"));
+
+	options.AddPolicy("AuthReadCache", policy =>
+	policy.Expire(TimeSpan.FromSeconds(5))
+		  .SetVaryByQuery("*")
+		  .SetVaryByHeader("Authorization"));
 });
 #endregion
 
@@ -141,6 +177,7 @@ builder.Services.AddSession(options =>
 	options.IdleTimeout = TimeSpan.FromMinutes(30);
 	options.Cookie.HttpOnly = true;
 	options.Cookie.IsEssential = true;
+	options.Cookie.SameSite = SameSiteMode.Strict;
 });
 
 #endregion
@@ -209,21 +246,23 @@ using (var scope = app.Services.CreateScope())
 {
 	var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 	if (app.Environment.EnvironmentName != "Testing")
-		db.Database.Migrate();
+		await db.Database.MigrateAsync();
 	if (app.Environment.IsDevelopment())
-	{
 		await DevUserSeeder.SeedAsync(scope.ServiceProvider);
-		app.UseSwagger();
-		app.UseSwaggerUI(c =>
-		{
-			c.SwaggerEndpoint("/swagger/v1/swagger.json", "Planova API v1");
-			c.RoutePrefix = "swagger";
-		});
-	}
-	else
+}
+
+if (app.Environment.IsDevelopment())
+{
+	app.UseSwagger();
+	app.UseSwaggerUI(c =>
 	{
-		app.UseHsts();
-	}
+		c.SwaggerEndpoint("/swagger/v1/swagger.json", "Planova API v1");
+		c.RoutePrefix = "swagger";
+	});
+}
+else
+{
+	app.UseHsts();
 }
 
 #endregion

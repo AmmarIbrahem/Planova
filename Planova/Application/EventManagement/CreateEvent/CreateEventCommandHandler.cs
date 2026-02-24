@@ -50,7 +50,7 @@ namespace Planova.Application.EventManagement.CreateEvent
 				return Result.Failure("Event name is required.");
 			}
 
-			if (string.IsNullOrEmpty(request.CreatorId.ToString()))
+			if (request.CreatorId == Guid.Empty)
 			{
 				_logger.LogWarning("Event {eventName} creation failed - event creator mus be defined.", request.Name);
 				return Result.Failure("Event creator must be registered");

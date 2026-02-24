@@ -41,7 +41,7 @@ namespace Planova.API.Controllers
 		/// <response code="201">User successfully registered.</response>
 		/// <response code="400">Invalid registration data.</response>
 		[HttpPost("register")]
-		[EnableRateLimiting("fixed")]
+		[EnableRateLimiting("auth")]
 		[ProducesResponseType(StatusCodes.Status201Created)]
 		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
 		public async Task<ActionResult<Result>> Register([FromBody] RegisterRequest request)
@@ -76,6 +76,7 @@ namespace Planova.API.Controllers
 		/// <response code="200">Login successful. Returns JWT token and user info.</response>
 		/// <response code="401">Invalid email or password.</response>
 		[HttpPost("login")]
+		[EnableRateLimiting("auth")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
 		public async Task<ActionResult<Result>> Login(LoginRequest request)

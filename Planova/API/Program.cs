@@ -6,17 +6,8 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Planova.API.Middleware;
 using Planova.API.Pages;
-using Planova.Application.Auth.Login;
-using Planova.Application.Auth.Register;
-using Planova.Application.BookingManagment.BookEvent;
 using Planova.Application.Common.Interfaces;
 using Planova.Application.EventManagement.CreateEvent;
-using Planova.Application.EventManagement.DeleteEvent;
-using Planova.Application.EventManagement.GetEventBookings;
-using Planova.Application.EventManagement.GetOwnedEvents;
-using Planova.Application.EventManagement.UpdateEvent;
-using Planova.Application.PublicDiscovery.GetAllEvents;
-using Planova.Application.PublicDiscovery.GetEventById;
 using Planova.Infrastructure.Observability;
 using Planova.Infrastructure.Persistence;
 using Planova.Infrastructure.Persistence.DevSeed;
@@ -60,18 +51,7 @@ builder.Services.AddScoped<ApiClient>();
 
 builder.Services.AddMediatR(cfg =>
 {
-	cfg.RegisterServicesFromAssembly(typeof(LoginCommand).Assembly);
-	cfg.RegisterServicesFromAssembly(typeof(RegisterCommand).Assembly);
-	cfg.RegisterServicesFromAssembly(typeof(BookEventCommand).Assembly);
 	cfg.RegisterServicesFromAssembly(typeof(CreateEventCommand).Assembly);
-	cfg.RegisterServicesFromAssembly(typeof(GetEventBookingsQuery).Assembly);
-	cfg.RegisterServicesFromAssembly(typeof(GetOwnedEventsQuery).Assembly);
-	cfg.RegisterServicesFromAssembly(typeof(UpdateEventCommand).Assembly);
-	cfg.RegisterServicesFromAssembly(typeof(DeleteEventCommand).Assembly);
-	cfg.RegisterServicesFromAssembly(typeof(GetAllEventsQuery).Assembly);
-	cfg.RegisterServicesFromAssembly(typeof(GetEventByIdQuery).Assembly);
-
-
 });
 
 #endregion

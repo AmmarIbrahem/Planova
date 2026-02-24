@@ -70,8 +70,7 @@ public sealed class BookEventHandler : IRequestHandler<BookEventCommand, Result>
 				return Fail(request.EventId, "duplicate_booking",
 					$"A participant with email {request.Participant.Email} has already booked this event.");
 
-			var bookingsCount = await _bookingRepository.GetCountByEventIdAsync (request.EventId, cancellationToken);
-			if (bookingsCount >= eventEntity.Capacity)
+			if (eventEntity.Bookings.Count() >= eventEntity.Capacity)
 				return Fail(request.EventId, "capacity_exceeded", "Event capacity exceeded.");
 
 			var booking = new Booking(

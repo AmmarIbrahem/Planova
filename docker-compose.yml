@@ -10,6 +10,7 @@ services:
       - "1433:1433"
     volumes:
       - sql_data:/var/opt/mssql
+      - dataprotection-keys:/app/.aspnet/DataProtection-Keys
     healthcheck:
       test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${SA_PASSWORD}", "-Q", "SELECT 1"]
       interval: 10s
@@ -32,6 +33,9 @@ services:
       - "8080:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - Logging__LogLevel__Default=Error
+      - Logging__LogLevel__Microsoft=Warning
+      - Logging__LogLevel__Microsoft.Hosting.Lifetime=Warning
       - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=PlanovaDb;User=sa;Password=${SA_PASSWORD};TrustServerCertificate=True
       - Jwt__Key=${JWT_KEY}
       - Jwt__Issuer=Planova
@@ -44,3 +48,4 @@ networks:
 
 volumes:
   sql_data:
+  dataprotection-keys:

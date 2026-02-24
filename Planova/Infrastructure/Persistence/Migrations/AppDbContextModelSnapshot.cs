@@ -58,7 +58,7 @@ namespace Planova.Migrations
 
                     b.HasIndex("CreatorId");
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
                 });
 
             modelBuilder.Entity("Planova.Domain.Entities.Booking", b =>
@@ -94,7 +94,7 @@ namespace Planova.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("Bookings");
+                    b.ToTable("Bookings", (string)null);
                 });
 
             modelBuilder.Entity("User", b =>
@@ -122,7 +122,7 @@ namespace Planova.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Event", b =>

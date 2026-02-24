@@ -32,19 +32,6 @@ public class BookingRepository : IBookingRepository
 		return bookings;
 	}
 
-	public async Task<int> GetCountByEventIdAsync (Guid eventId, CancellationToken cancellationToken)
-	{
-		var bookingsCount =
-			await _context.Bookings
-			.Where(p => p.EventId == eventId)
-			.AsNoTracking()
-			.CountAsync(cancellationToken);
-
-		_logger.LogDebug("Successfully retrieved {Count} bookings for event ID: {EventId}", bookingsCount, eventId);
-		return bookingsCount;
-	}
-
-
 	public async Task<Guid> AddAsync(Booking entity, CancellationToken cancellationToken)
 	{
 		await _context.Bookings.AddAsync(entity, cancellationToken);

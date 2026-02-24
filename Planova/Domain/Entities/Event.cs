@@ -1,4 +1,5 @@
 using Planova.Domain.Common;
+using Planova.Domain.Entities;
 
 public class Event : Entity
 {
@@ -11,6 +12,9 @@ public class Event : Entity
 	public DateTime EndTime { get; private set; }
 	public int Capacity { get; private set; }
 	public Guid CreatorId { get; private set; }
+
+	private readonly List<Booking> _bookings = new();
+	public IReadOnlyCollection<Booking> Bookings => _bookings.AsReadOnly();
 
 	private Event() { } // EF Core
 

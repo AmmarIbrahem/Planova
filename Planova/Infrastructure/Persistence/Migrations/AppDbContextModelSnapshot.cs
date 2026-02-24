@@ -58,7 +58,7 @@ namespace Planova.Migrations
 
                     b.HasIndex("CreatorId");
 
-                    b.ToTable("Events", (string)null);
+                    b.ToTable("Events");
                 });
 
             modelBuilder.Entity("Planova.Domain.Entities.Booking", b =>
@@ -94,7 +94,7 @@ namespace Planova.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("Bookings", (string)null);
+                    b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("User", b =>
@@ -122,7 +122,7 @@ namespace Planova.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Event", b =>
@@ -137,10 +137,15 @@ namespace Planova.Migrations
             modelBuilder.Entity("Planova.Domain.Entities.Booking", b =>
                 {
                     b.HasOne("Event", null)
-                        .WithMany()
+                        .WithMany("Bookings")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Event", b =>
+                {
+                    b.Navigation("Bookings");
                 });
 #pragma warning restore 612, 618
         }

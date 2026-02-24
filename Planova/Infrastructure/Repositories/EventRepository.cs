@@ -41,10 +41,7 @@ public class EventRepository : IEventRepository
 				StartTime = e.StartTime,
 				EndTime = e.EndTime,
 				Capacity = e.Capacity,
-				CurrentParticipants = _context.Bookings
-					.AsNoTracking()
-					.Where(b => b.EventId == e.Id)
-					.Count()
+				CurrentParticipants = e.Bookings.Count(),
 			})
 			.Where(e => e.CurrentParticipants < e.Capacity)
 			.ToListAsync(cancellationToken);
@@ -63,34 +60,28 @@ public class EventRepository : IEventRepository
 		}
 
 		var ownedEvents = await query
-			.GroupJoin(
-				_context.Bookings.AsNoTracking(), 
-				e => e.Id,
-				b => b.EventId,
-				(e, bookings) => new OwnedEventDto
+			.Select(e => new OwnedEventDto
+			{
+				Id = e.Id,
+				Name = e.Name,
+				Description = e.Description,
+				Location = e.Location,
+				StartTime = e.StartTime,
+				EndTime = e.EndTime,
+				Capacity = e.Capacity,
+				TotalParticipants = e.Bookings.Count(),  // navigation property
+				Bookings = e.Bookings.Select(b => new BookingDto
 				{
-					Id = e.Id,
-					Name = e.Name,
-					Description = e.Description,
-					Location = e.Location,
-					StartTime = e.StartTime,
-					EndTime = e.EndTime,
-					Capacity = e.Capacity,
-
-					TotalParticipants = bookings.Count(),
-
-					Bookings = bookings.Select(b => new BookingDto
+					BookingId = b.Id,
+					BookerUserId = b.BookerUserId,
+					Participant = new BookingParticipantDto
 					{
-						BookingId = b.Id,
-						BookerUserId = b.BookerUserId,
-						Participant = new BookingParticipantDto
-						{
-							Name = b.Name,
-							Email = b.Email,
-							PhoneNumber = b.PhoneNumber
-						}
-					}).ToList()
-				})
+						Name = b.Name,
+						Email = b.Email,
+						PhoneNumber = b.PhoneNumber
+					}
+				}).ToList()
+			})
 			.OrderByDescending(e => e.StartTime)
 			.ToListAsync(cancellationToken);
 
@@ -112,11 +103,7 @@ public class EventRepository : IEventRepository
 				StartTime = e.StartTime,
 				EndTime =e.EndTime,
 				Capacity = e.Capacity,
-				CurrentParticipants = 
-					_context.Bookings
-						.Where(b => b.EventId == e.Id)
-						.Count(),
-
+				CurrentParticipants = e.Bookings.Count(),
 				Creator = new CreatorDto
 				{
 					Id = e.CreatorId,

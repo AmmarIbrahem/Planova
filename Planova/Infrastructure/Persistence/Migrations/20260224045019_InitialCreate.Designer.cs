@@ -12,7 +12,7 @@ using Planova.Infrastructure.Persistence;
 namespace Planova.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260224010627_InitialCreate")]
+    [Migration("20260224045019_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -140,10 +140,15 @@ namespace Planova.Migrations
             modelBuilder.Entity("Planova.Domain.Entities.Booking", b =>
                 {
                     b.HasOne("Event", null)
-                        .WithMany()
+                        .WithMany("Bookings")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Event", b =>
+                {
+                    b.Navigation("Bookings");
                 });
 #pragma warning restore 612, 618
         }

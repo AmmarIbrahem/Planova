@@ -123,8 +123,8 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.AddOutputCache(options =>
 {
 	options.AddPolicy("ReadCache", policy =>
-		policy.Expire(TimeSpan.FromMinutes(2))
-			  .SetVaryByQuery("*")); // cache per query string
+		policy.Expire(TimeSpan.FromSeconds(5))
+			  .SetVaryByQuery("*"));
 });
 #endregion
 

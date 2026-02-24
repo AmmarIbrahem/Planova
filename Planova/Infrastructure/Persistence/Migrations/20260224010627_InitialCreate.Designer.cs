@@ -12,7 +12,7 @@ using Planova.Infrastructure.Persistence;
 namespace Planova.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260223035334_InitialCreate")]
+    [Migration("20260224010627_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -91,16 +91,11 @@ namespace Planova.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Email");
 
                     b.HasIndex("EventId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Bookings");
                 });
@@ -149,12 +144,6 @@ namespace Planova.Migrations
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

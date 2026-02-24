@@ -43,7 +43,6 @@ public class RegisterModel : PageModel
 			var root = doc.RootElement;
 			if (root.TryGetProperty("isSuccess", out var success) && success.GetBoolean())
 				return RedirectToPage("/User/Login");
-			//Error = root.TryGetProperty("errorMessage", out var err) ? err.GetString() ?? "Registration failed." : "Registration failed.";
 		}
 		else
 		{

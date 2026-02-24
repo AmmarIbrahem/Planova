@@ -15,10 +15,8 @@ public static class DevUserSeeder
 		var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 		var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
 
-		// Ensure database created
 		await context.Database.MigrateAsync();
 
-		// Prevent duplicate seeding
 		if (await context.Users.AnyAsync())
 			return;
 

@@ -9,6 +9,7 @@ using Planova.API.Pages;
 using Planova.Application.Auth.Register;
 using Planova.Application.Common.Interfaces;
 using Planova.Application.EventManagement.CreateEvent;
+using Planova.Infrastructure.Observability;
 using Planova.Infrastructure.Persistence;
 using Planova.Infrastructure.Persistence.DevSeed;
 using Planova.Infrastructure.Persistence.Repositories;
@@ -187,6 +188,19 @@ builder.Services.AddHealthChecks()
 
 #endregion
 
+#region Observability
+
+builder.Services.AddSingleton<PlanovaMetrics>();
+builder.Services.AddMetrics();
+
+builder.Logging.AddJsonConsole(options =>
+{
+	options.IncludeScopes = true;   // includes CorrelationId from scope
+	options.TimestampFormat = "O";    // ISO 8601
+});
+
+#endregion
+
 var app = builder.Build();
 
 #region Development Seeding
@@ -216,6 +230,7 @@ using (var scope = app.Services.CreateScope())
 
 #region Middleware Pipeline (Correct Order)
 
+app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHttpsRedirection();

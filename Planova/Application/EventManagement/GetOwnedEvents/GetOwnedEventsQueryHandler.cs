@@ -40,8 +40,6 @@ namespace Planova.Application.EventManagement.GetOwnedEvents
 			}
 			try
 			{
-				_logger.LogInformation("Handling GetOwnedEventsQuery for user ID: {UserId} with role: {Role}", userId, role);
-				
 				Guid? creatorId = role == UserRole.Admin ? null : userId;
 
 				_logger.LogInformation("Retrieving events for user ID: {UserId} with role: {Role}. Creator ID filter: {CreatorId}", userId, role, creatorId);

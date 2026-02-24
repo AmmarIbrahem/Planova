@@ -28,7 +28,6 @@ public class LoginHandler : IRequestHandler<LoginCommand, Result>
 	{
 		try
 		{
-			_logger.LogInformation("Attempting to log in user with email: {Email}", command.Email);
 			var user = await _userRepository.GetByEmailAsync(command.Email.ToLowerInvariant(), cancellationToken);
 
 			if (user is null || string.IsNullOrEmpty(user.PasswordHash))

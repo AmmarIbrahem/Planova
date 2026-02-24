@@ -25,8 +25,6 @@ namespace Planova.Application.EventManagement.DeleteEvent
 			DeleteEventCommand request,
 			CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Deleting event with ID {EventId} by user {UserId}", request.EventId, _currentUser.UserId);
-
 			var entity = await _eventRepository.GetByIdAsync(
 				request.EventId,
 				cancellationToken);

@@ -57,8 +57,6 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result>
 				return Result.Failure("Invalid role.");
 			}
 
-			_logger.LogInformation("Registering new user with email: {Email} and role: {Role}", request.Email, role);
-			
 			var passwordHash = _passwordHasher.Hash(request.Password);
 			var user = new User(
 				request.Email,

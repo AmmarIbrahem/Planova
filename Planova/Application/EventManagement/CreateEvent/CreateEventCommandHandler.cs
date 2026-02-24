@@ -23,8 +23,6 @@ namespace Planova.Application.EventManagement.CreateEvent
 
 		public async Task<Result> Handle(CreateEventCommand request, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("User with ID: {UserId} is attempting to create an event with name: {EventName}", _currentUser.UserId, request.Name);
-
 			if (_currentUser.UserId == null)
 			{
 				_logger.LogWarning("Event creation failed - user is not authenticated");

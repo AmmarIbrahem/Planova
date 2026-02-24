@@ -46,8 +46,6 @@ namespace Planova.API.Controllers
 		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
 		public async Task<ActionResult<Result>> Register([FromBody] RegisterRequest request)
 		{
-			_logger.LogInformation("Received registration request for email: {Email}", request.Email);
-
 			var result = await _mediator.Send(
 				new RegisterCommand(
 					request.Name,
@@ -82,8 +80,6 @@ namespace Planova.API.Controllers
 		[ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
 		public async Task<ActionResult<Result>> Login(LoginRequest request)
 		{
-			_logger.LogInformation("Received login request for email: {Email}", request.Email);
-
 			var result = await _mediator.Send(
 				new LoginCommand(request.Email, request.Password));
 

@@ -1,109 +1,113 @@
+using System.Diagnostics;
 using MediatR;
 using Planova.Application.Common;
 using Planova.Application.Common.Interfaces;
 using Planova.Domain.Entities;
 using Planova.Infrastructure.Exceptions;
+using Planova.Infrastructure.Observability;
 
-namespace Planova.Application.BookingManagment.BookEvent
+namespace Planova.Application.BookingManagment.BookEvent;
+
+public sealed class BookEventHandler : IRequestHandler<BookEventCommand, Result>
 {
-	public sealed class BookEventHandler : IRequestHandler<BookEventCommand, Result>
+	private readonly IEventRepository _eventRepository;
+	private readonly IBookingRepository _bookingRepository;
+	private readonly IUserRepository _userRepository;
+	private readonly IUnitOfWork _unitOfWork;
+	private readonly ICurrentUserService _currentUser;
+	private readonly PlanovaMetrics _metrics;
+	private readonly ILogger<BookEventHandler> _logger;
+
+	public BookEventHandler(
+		IEventRepository eventRepository,
+		IBookingRepository bookingRepository,
+		IUserRepository userRepository,
+		IUnitOfWork unitOfWork,
+		ICurrentUserService currentUser,
+		PlanovaMetrics metrics,
+		ILogger<BookEventHandler> logger)
 	{
-		private readonly IEventRepository _eventRepository;
-		private readonly IBookingRepository _bookingRepository;
-		private readonly IUserRepository _userRepository;
-		private readonly IUnitOfWork _unitOfWork;
-		private readonly ICurrentUserService _currentUser;
-		private readonly ILogger<BookEventHandler> _logger;
+		_eventRepository = eventRepository;
+		_bookingRepository = bookingRepository;
+		_userRepository = userRepository;
+		_unitOfWork = unitOfWork;
+		_currentUser = currentUser;
+		_metrics = metrics;
+		_logger = logger;
+	}
 
+	public async Task<Result> Handle(BookEventCommand request, CancellationToken cancellationToken)
+	{
+		_metrics.RecordBookingAttempt();
+		var sw = Stopwatch.StartNew();
 
-		public BookEventHandler(
-			IEventRepository eventRepository,
-			IBookingRepository bookingRepository,
-			IUserRepository userRepository,
-			IUnitOfWork unitOfWork,
-			ICurrentUserService currentUser,
-			ILogger<BookEventHandler> logger)
+		try
 		{
-			_eventRepository = eventRepository;
-			_bookingRepository = bookingRepository;
-			_userRepository = userRepository;
-			_unitOfWork = unitOfWork;
-			_currentUser = currentUser;
-			_logger = logger;
-		}
-
-		public async Task<Result> Handle(BookEventCommand request, CancellationToken cancellationToken)
-		{
-			_logger.LogInformation("Attempting to book event with ID: {EventId} for participant with email: {Email}", request.EventId, request.Participant.Email);
-
 			if (request.Participant is null)
-			{
-				_logger.LogWarning("Booking failed for event with ID: {EventId} - participant information is missing", request.EventId);
-				return Result.Failure("Participant is required.");
-			}
+				return Fail(request.EventId, "missing_participant", "Participant is required.");
 
 			if (string.IsNullOrWhiteSpace(request.Participant.Email))
-			{
-				_logger.LogWarning("Booking failed for event with ID: {EventId} - participant email is missing", request.EventId);
-				return Result.Failure("Participant email is required.");
-			}
+				return Fail(request.EventId, "missing_email", "Participant email is required.");
 
 			if (string.IsNullOrWhiteSpace(request.Participant.Name))
-			{
-				_logger.LogWarning("Booking failed for event with ID: {EventId} - participant name is missing", request.EventId);
-				return Result.Failure("Participant name is required.");
-			}
+				return Fail(request.EventId, "missing_name", "Participant name is required.");
 
 			if (string.IsNullOrWhiteSpace(request.Participant.PhoneNumber))
-			{
-				_logger.LogWarning("Booking failed for event with ID: {EventId} - participant phone number is missing", request.EventId);
-				return Result.Failure("Participant phone number is required.");
-			}
-			try
-			{
-				var eventEntity = await _eventRepository.GetByIdAsync(request.EventId, cancellationToken);
-				if (eventEntity == null)
-				{
-					_logger.LogWarning("Booking failed for event with ID: {EventId} - event not found", request.EventId);
-					return Result.Failure("Event not found.");
-				}
-				var eventCreatorUser = await _userRepository.GetByIdAsync(eventEntity.CreatorId, cancellationToken);
-				if(eventCreatorUser is not null && eventCreatorUser.Email.ToLower().Equals(request.Participant.Email.ToLower()))
-				{
-					_logger.LogWarning("Booking failed for event with ID: {EventId} - participant email matches event creator email", request.EventId);	
-					return Result.Failure("Event creators cannot book their own events.");
-				}
+				return Fail(request.EventId, "missing_phone", "Participant phone number is required.");
 
-				var exists = await _bookingRepository.ExistsByEmailAsync(request.EventId, request.Participant.Email, cancellationToken);
-				if (exists)
-				{
-					_logger.LogWarning("Booking failed for event with ID: {EventId} - participant with email: {Email} has already booked this event", request.EventId, request.Participant.Email);
-					return Result.Failure($"A participant with email {request.Participant.Email} has already booked this event.");
-				}
+			var eventEntity = await _eventRepository.GetByIdAsync(request.EventId, cancellationToken);
+			if (eventEntity is null)
+				return Fail(request.EventId, "event_not_found", "Event not found.");
 
-				var currentParticipants =
-					await _bookingRepository.GetByEventIdAsync(request.EventId, cancellationToken);
+			var creator = await _userRepository.GetByIdAsync(eventEntity.CreatorId, cancellationToken);
+			if (creator is not null &&
+				creator.Email.Equals(request.Participant.Email, StringComparison.OrdinalIgnoreCase))
+				return Fail(request.EventId, "creator_self_booking", "Event creators cannot book their own events.");
 
-				if (currentParticipants.Count + 1  > eventEntity.Capacity)
-					return Result.Failure("Event capacity exceeded.");
+			var alreadyBooked = await _bookingRepository.ExistsByEmailAsync(
+				request.EventId, request.Participant.Email, cancellationToken);
+			if (alreadyBooked)
+				return Fail(request.EventId, "duplicate_booking",
+					$"A participant with email {request.Participant.Email} has already booked this event.");
 
-				var booking = new Booking(
-					request.EventId, 
-					request.Participant.Name, 
-					request.Participant.Email, 
-					request.Participant.PhoneNumber,
-					_currentUser.UserId);
+			var bookings = await _bookingRepository.GetByEventIdAsync(request.EventId, cancellationToken);
+			if (bookings.Count >= eventEntity.Capacity)
+				return Fail(request.EventId, "capacity_exceeded", "Event capacity exceeded.");
 
-				await _bookingRepository.AddAsync(booking, cancellationToken);
-				await _unitOfWork.SaveChangesAsync(cancellationToken);
+			var booking = new Booking(
+				request.EventId,
+				request.Participant.Name,
+				request.Participant.Email,
+				request.Participant.PhoneNumber,
+				_currentUser.UserId);
 
-				_logger.LogInformation("Booking created successfully for event with ID: {EventId} and participant with email: {Email}", request.EventId, request.Participant.Email);
-				return Result.Success("Booking created successfully.");
-			}
-			catch(Exception ex)
-			{
-				throw new InfrastructureException("An error occurred while booking the event.", ex);
-			}
+			await _bookingRepository.AddAsync(booking, cancellationToken);
+			await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+			sw.Stop();
+			_metrics.RecordBookingSuccess();
+			_metrics.RecordBookingDuration(sw.Elapsed.TotalMilliseconds);
+
+			_logger.LogInformation(
+				"Booking created. EventId={EventId} Email={Email} DurationMs={DurationMs}",
+				request.EventId, request.Participant.Email, sw.Elapsed.TotalMilliseconds);
+
+			return Result.Success("Booking created successfully.");
 		}
+		catch (Exception ex)
+		{
+			sw.Stop();
+			_metrics.RecordBookingFailure("exception");
+			throw new InfrastructureException("An error occurred while booking the event.", ex);
+		}
+	}
+
+	private Result Fail(Guid eventId, string reason, string message)
+	{
+		_metrics.RecordBookingFailure(reason);
+		_logger.LogWarning(
+			"Booking rejected. EventId={EventId} Reason={Reason} Message={Message}",
+			eventId, reason, message);
+		return Result.Failure(message);
 	}
 }

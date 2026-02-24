@@ -25,7 +25,6 @@ namespace Planova.Application.EventManagement.UpdateEvent
 		{
 			try
 			{
-				_logger.LogInformation("Handling UpdateEventCommand for event ID: {EventId} by user ID: {UserId}", request.EventId, _currentUser.UserId);
 				var entity = await _eventRepository.GetByIdAsync(
 					request.EventId,
 					cancellationToken);

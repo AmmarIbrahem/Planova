@@ -48,7 +48,6 @@ namespace Planova.API.Controllers
 			[FromBody] BookEventRequest request,
 			CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Received booking request for event ID: {EventId} with participant email: {Email}", eventId, request.Email);
 			if (eventId == Guid.Empty)
 			{
 				_logger.LogWarning("Booking attempt with empty event ID.");

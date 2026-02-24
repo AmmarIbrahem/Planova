@@ -26,7 +26,6 @@ namespace Planova.Application.EventManagement.GetEventBookings
 		{
 			try
 			{
-				_logger.LogInformation("Handling GetEventBookingsQuery for event ID: {EventId} by user ID: {UserId}", request.EventId, _currentUser.UserId);
 				var evnt = await _eventRepository.GetByIdAsync(request.EventId, cancellationToken);
 
 				if (evnt is null)

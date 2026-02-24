@@ -20,7 +20,6 @@ namespace Planova.Application.PublicDiscovery.GetAllEvents
 		{
 			try
 			{
-				_logger.LogInformation("Handling GetAllEventsQuery");
 				var events = await _repository.GetAvailableEventsAsync(cancellationToken);
 				_logger.LogInformation("Successfully retrieved {Count} events for GetAllEventsQuery", events.Count);
 				return Result.Success(events);

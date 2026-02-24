@@ -46,7 +46,6 @@ namespace Planova.API.Controllers
 		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
 		public async Task<ActionResult<List<EventListItemDto>>> GetAll(CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Received request to get all events");
 			var result = await _mediator.Send(new GetAllEventsQuery(), cancellationToken);
 			if (!result.IsSuccess)
 			{
@@ -69,7 +68,6 @@ namespace Planova.API.Controllers
 		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
 		public async Task<ActionResult<EventDetailsDto>> GetById(Guid id, CancellationToken ct)
 		{
-			_logger.LogInformation("Received request to get event by ID: {EventId}", id);
 			var result = await _mediator.Send(new GetEventByIdQuery(id), ct);
 			if (!result.IsSuccess)
 			{
@@ -94,7 +92,6 @@ namespace Planova.API.Controllers
 		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
 		public async Task<ActionResult<EventDetailsDto>> GetOwnedEvents(CancellationToken ct)
 		{
-			_logger.LogInformation("Received request to get owned events for user ID: {UserId}", _currentUser.UserId);
 			if (_currentUser.UserId == null)
 			{
 				_logger.LogWarning("Unauthorized attempt to access owned events");
@@ -128,7 +125,6 @@ namespace Planova.API.Controllers
 			Guid eventId,
 			CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Received request to get registrations for event ID: {EventId} by user ID: {UserId}", eventId, _currentUser.UserId);
 			if (_currentUser.UserId == null)
 			{
 				_logger.LogWarning("Unauthorized attempt to access registrations for event ID: {EventId}", eventId);
@@ -162,7 +158,6 @@ namespace Planova.API.Controllers
 			[FromBody] CreateEventRequest request,
 			CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Received request to create event by user ID: {UserId}", _currentUser.UserId);
 			if (_currentUser.UserId == null)
 			{
 				_logger.LogWarning("Unauthorized attempt to create an event");
@@ -207,7 +202,6 @@ namespace Planova.API.Controllers
 			UpdateEventRequest request,
 			CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Received request to update event with ID: {EventId} by user ID: {UserId}", id, _currentUser.UserId);
 			if (_currentUser.UserId == null)
 			{
 				_logger.LogWarning("Unauthorized attempt to update event with ID: {EventId}", id);
@@ -250,7 +244,6 @@ namespace Planova.API.Controllers
 			Guid id,
 			CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Received request to delete event with ID: {EventId} by user ID: {UserId}", id, _currentUser.UserId);
 			if (_currentUser.UserId == null)
 			{
 				_logger.LogWarning("Unauthorized attempt to delete event with ID: {EventId}", id);

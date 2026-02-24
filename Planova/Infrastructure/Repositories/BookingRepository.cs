@@ -22,8 +22,6 @@ public class BookingRepository : IBookingRepository
 		Guid eventId,
 		CancellationToken cancellationToken)
 	{
-		_logger.LogInformation("Retrieving bookings for event ID: {EventId}", eventId);
-		
 		var bookings =  
 			await _context.Bookings
 			.Where(p => p.EventId == eventId)
@@ -36,7 +34,6 @@ public class BookingRepository : IBookingRepository
 
 	public async Task<Guid> AddAsync(Booking entity, CancellationToken cancellationToken)
 	{
-		_logger.LogInformation("Adding new booking for event ID: {EventId} with email: {Email}", entity.EventId, entity.Email);
 		await _context.Bookings.AddAsync(entity, cancellationToken);
 		_logger.LogInformation("Successfully added booking for event ID: {EventId} with email: {Email}", entity.EventId, entity.Email);
 
@@ -45,7 +42,6 @@ public class BookingRepository : IBookingRepository
 
 	public async Task<bool> ExistsByEmailAsync(Guid eventId, string email, CancellationToken cancellationToken)
 	{
-		_logger.LogInformation("Checking if booking exists for event ID: {EventId} with email: {Email}", eventId, email);
 		var existsByEmail =  await _context.Bookings
 		.Where(bp => bp.EventId == eventId)
 		.AnyAsync(bp => bp.Email.ToLower() == email.ToLower(), cancellationToken);

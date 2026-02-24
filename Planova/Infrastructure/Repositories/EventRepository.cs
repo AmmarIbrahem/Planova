@@ -18,8 +18,6 @@ public class EventRepository : IEventRepository
 
 	public async Task<Event?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
 	{
-		_logger.LogInformation("Retrieving event with ID {EventId}", id);
-		
 		var events = await _context.Events
 			.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
 
@@ -31,7 +29,6 @@ public class EventRepository : IEventRepository
 	public async Task<List<EventDetailsDto>> GetAvailableEventsAsync(CancellationToken cancellationToken)
 	{
 		var now = DateTime.UtcNow;
-		_logger.LogInformation("Retrieving available events at {CurrentTime}", now);
 		var avaialbleEvents = await _context.Events
 			.Where(e => e.EndTime > now) 
 			.Select(e => new EventDetailsDto
@@ -57,7 +54,6 @@ public class EventRepository : IEventRepository
 
 	public async Task<List<OwnedEventDto>> GetByCreatorAsync(Guid? creatorId, CancellationToken cancellationToken)
 	{
-		_logger.LogInformation("Retrieving events for creator ID: {CreatorId}", creatorId.HasValue ? creatorId.Value.ToString() : "All (Admin)");
 		var query = _context.Events.AsNoTracking();
 		if (creatorId.HasValue)
 		{
@@ -103,8 +99,6 @@ public class EventRepository : IEventRepository
 
 	public async Task<EventDetailsDto?> GetEventDetailsByIdAsync(Guid eventId, CancellationToken cancellationToken)
 	{
-		_logger.LogInformation("Retrieving public details for event ID: {EventId}", eventId);
-		
 		var events =  await _context.Events
 			.Where(e => e.Id == eventId)
 			.Select(e => new EventDetailsDto
@@ -138,7 +132,6 @@ public class EventRepository : IEventRepository
 
 	public async Task<Guid> AddAsync(Event entity, CancellationToken cancellationToken)
 	{
-		_logger.LogInformation("Adding new event: {EventName} by creator ID: {CreatorId}", entity.Name, entity.CreatorId);
 		await _context.Events.AddAsync(entity, cancellationToken);
 		_logger.LogInformation("Added new event: {EventName} with ID: {EventId}", entity.Name, entity.Id);
 
@@ -147,14 +140,12 @@ public class EventRepository : IEventRepository
 
 	public void Update(Event entity)
 	{
-		_logger.LogInformation("Updating event with ID: {EventId}", entity.Id);
 		_context.Events.Update(entity);
 		_logger.LogInformation("Updated event with ID: {EventId}", entity.Id);
 	}
 
 	public void Remove(Event entity)
 	{
-		_logger.LogInformation("Removing event with ID: {EventId}", entity.Id);
 		_context.Events.Remove(entity);
 		_logger.LogInformation("Removed event with ID: {EventId}", entity.Id);
 	}

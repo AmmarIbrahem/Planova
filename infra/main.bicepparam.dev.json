@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": {
+      "value": "dev"
+    },
+    "appName": {
+      "value": "planova"
+    },
+    "sqlAdminLogin": {
+      "value": "sqladmin"
+    },
+    "sqlAdminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<RG_NAME>/providers/Microsoft.KeyVault/vaults/<BOOTSTRAP_KV_NAME>"
+        },
+        "secretName": "sql-admin-password"
+      }
+    },
+    "jwtKey": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<RG_NAME>/providers/Microsoft.KeyVault/vaults/<BOOTSTRAP_KV_NAME>"
+        },
+        "secretName": "jwt-key"
+      }
+    },
+    "jwtIssuer": {
+      "value": "Planova"
+    },
+    "jwtAudience": {
+      "value": "PlanovaUsers"
+    },
+    "jwtExpiresInHours": {
+      "value": 2
+    },
+    "appServiceSku": {
+      "value": "B1"
+    },
+    "sqlSkuName": {
+      "value": "Basic"
+    }
+  }
+}

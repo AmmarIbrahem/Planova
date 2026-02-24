@@ -19,8 +19,6 @@ namespace Planova.Infrastructure.Security
 
 		public string Generate(Guid userId, string email, string role)
         {
-            _logger.LogInformation("Generating JWT for user ID: {UserId}, email: {Email}, role: {Role}", userId, email, role);
-
 			var key = _configuration["Jwt:Key"];
             var issuer = _configuration["Jwt:Issuer"];
             var audience = _configuration["Jwt:Audience"];

@@ -20,7 +20,6 @@ public sealed class GetEventByIdHandler : IRequestHandler<GetEventByIdQuery, Res
 	{
 		try
 		{
-			_logger.LogInformation("Handling GetEventByIdQuery for event ID: {EventId}", query.Id);
 			var eventDto = await _eventRepository.GetEventDetailsByIdAsync(query.Id, ct);
 			if (eventDto is null)
 			{

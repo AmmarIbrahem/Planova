@@ -21,10 +21,11 @@ namespace Planova.Infrastructure.Security
         {
 			var key = _configuration["Jwt:Key"];
             var issuer = _configuration["Jwt:Issuer"];
-            var audience = _configuration["Jwt:Audience"];
-            var expires = DateTime.UtcNow.AddHours(2);
+			var audience = _configuration["Jwt:Audience"];
+			var expiresInHours = _configuration.GetValue<int>("Jwt:ExpiresInHours", 2);
+			var expires = DateTime.UtcNow.AddHours(expiresInHours);
 
-            var claims = new[]
+			var claims = new[]
             {
 				new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
 	            new Claim(ClaimTypes.Email, email),

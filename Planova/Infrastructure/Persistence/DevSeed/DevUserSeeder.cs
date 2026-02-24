@@ -11,36 +11,15 @@ public static class DevUserSeeder
 {
 	public static async Task SeedAsync(IServiceProvider sp)
 	{
-		using var scope = sp.CreateScope();
-		var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-		var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+		var context = sp.GetRequiredService<AppDbContext>();
+		var hasher = sp.GetRequiredService<IPasswordHasher>();
 
 		await context.Database.MigrateAsync();
 
 		if (await context.Users.AnyAsync())
 			return;
 
-		const int KeySize = 32;
-		const int Iterations = 100_000;
-		const string Delimiter = ";";
-
-		byte[] fixedSalt = new byte[16]
-			{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-
-		var saltBase64 = Convert.ToBase64String(fixedSalt);
-
-		string password = "123456";
-
-		var hashBytes = Rfc2898DeriveBytes.Pbkdf2(
-			password,
-			fixedSalt,
-			Iterations,
-			HashAlgorithmName.SHA256,
-			KeySize
-		);
-
-		var hashBase64 = Convert.ToBase64String(hashBytes);
-		string passwordHash = $"{saltBase64}{Delimiter}{hashBase64}{Delimiter}{Iterations}";
+		string passwordHash = hasher.Hash("123456");
 
 		// -------------------------------
 		// Users

@@ -30,6 +30,7 @@ public class EventRepository : IEventRepository
 	{
 		var now = DateTime.UtcNow;
 		var avaialbleEvents = await _context.Events
+			.AsNoTracking()
 			.Where(e => e.EndTime > now) 
 			.Select(e => new EventDetailsDto
 			{
@@ -41,6 +42,7 @@ public class EventRepository : IEventRepository
 				EndTime = e.EndTime,
 				Capacity = e.Capacity,
 				CurrentParticipants = _context.Bookings
+					.AsNoTracking()
 					.Where(b => b.EventId == e.Id)
 					.Count()
 			})
